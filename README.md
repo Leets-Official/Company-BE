@@ -165,7 +165,7 @@ findDepartmentStatistics()
 findHighestSalaryEmployee()
 ```
 
-프로젝트별 통계:
+**프로젝트별 통계:**
 
 ```
 findProjectStatistics()
@@ -173,19 +173,19 @@ findProjectStatistics()
 반환 타입: ProjectStats (프로젝트명, 참여 직원 수, 총 급여)
 ```
 
-부서별 최고 연봉 직원 조회:
+**부서별 최고 연봉 직원 조회:**
 
 ```
 findTopEmployeePerDepartment()
 ```
 
-프로젝트 미참여 직원 조회:
+**프로젝트 미참여 직원 조회:**
 
 ```
 findEmployeesNotInAnyProject()
 ```
 
-매니저 통계 조회:
+**매니저 통계 조회:**
 
 ```
 findManagerStatistics()
