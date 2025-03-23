@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    url: // 환경에 맞게 설정
+    username: // 환경에 맞게 설정
+    password: // 환경에 맞게 설정
