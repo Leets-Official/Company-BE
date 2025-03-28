@@ -177,8 +177,8 @@ public class CompanyRepository {
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             return new ManagerStats(
-                    rs.getString("manager_name"),    // manager_name
-                    rs.getInt("subordinate_count")   // subordinate_count
+                    rs.getString("manager_name"),
+                    rs.getInt("subordinate_count")
             );
         });
     }
