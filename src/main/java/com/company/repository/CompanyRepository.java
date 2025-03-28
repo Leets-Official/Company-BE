@@ -20,20 +20,67 @@ public class CompanyRepository {
 
     // --- 테이블 생성 (존재하면 DROP) ---
     public void initializeDatabase() {
-        //TODO: 구현
+        String dropDepartmentsTable = "DROP TABLE IF EXISTS departments";
+        String dropEmployeesTable = "DROP TABLE IF EXISTS employees";
+        String dropProjectsTable = "DROP TABLE IF EXISTS projects";
+        String dropEmployeeProjectsTable = "DROP TABLE IF EXISTS employee_projects";
+
+        String createDepartmentsTable = "CREATE TABLE departments (" +
+                "id BIGINT AUTO_INCREMENT PRIMARY KEY," +
+                "name VARCHAR(255) NOT NULL" +
+                ")";
+
+        String createEmployeesTable = "CREATE TABLE employees (" +
+                "id BIGINT AUTO_INCREMENT PRIMARY KEY," +
+                "name VARCHAR(255) NOT NULL," +
+                "department_id BIGINT," +
+                "salary DECIMAL(10, 2)," +
+                "manager_id BIGINT," +
+                "FOREIGN KEY (department_id) REFERENCES departments(id)," +
+                "FOREIGN KEY (manager_id) REFERENCES employees(id)" +
+                ")";
+
+        String createProjectsTable = "CREATE TABLE projects (" +
+                "id BIGINT AUTO_INCREMENT PRIMARY KEY," +
+                "name VARCHAR(255) NOT NULL," +
+                "budget DECIMAL(10, 2)" +
+                ")";
+
+        String createEmployeeProjectsTable = "CREATE TABLE employee_projects (" +
+                "employee_id BIGINT," +
+                "project_id BIGINT," +
+                "role VARCHAR(255)," +
+                "PRIMARY KEY (employee_id, project_id)," +
+                "FOREIGN KEY (employee_id) REFERENCES employees(id)," +
+                "FOREIGN KEY (project_id) REFERENCES projects(id)" +
+                ")";
+
+
+        jdbcTemplate.execute(dropDepartmentsTable);
+        jdbcTemplate.execute(dropEmployeesTable);
+        jdbcTemplate.execute(dropProjectsTable);
+        jdbcTemplate.execute(dropEmployeeProjectsTable);
+
+        jdbcTemplate.execute(createDepartmentsTable);
+        jdbcTemplate.execute(createEmployeesTable);
+        jdbcTemplate.execute(createProjectsTable);
+        jdbcTemplate.execute(createEmployeeProjectsTable);
     }
 
     // --- 데이터 삽입 ---
     public void insertDepartment(String name) {
-        //TODO: 구현
+        String sql = "INSERT INTO departments (name) VALUES (?)";
+        jdbcTemplate.update(sql, name);
     }
 
     public void insertEmployee(Employee employee) {
-        //TODO: 구현
+        String sql = "INSERT INTO employees ( name, department_id, salary, manager_id) VALUES (?, ?, ?, ?)";
+        jdbcTemplate.update(sql, employee.getName(), employee.getDepartmentId(), employee.getSalary(), employee.getManagerId());
     }
 
     public void insertProject(Project project) {
-        //TODO: 구현
+        String sql = "INSERT INTO projects (name, budget) VALUES (?, ?)";
+        jdbcTemplate.update(sql,project.getName(),project.getBudget());
     }
 
     public void insertEmployeeProject(Long employeeId, Long projectId, String role) {
