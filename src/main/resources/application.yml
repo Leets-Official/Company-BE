@@ -1,5 +1,6 @@
 spring:
   datasource:
-    url: // 환경에 맞게 설정
-    username: // 환경에 맞게 설정
-    password: // 환경에 맞게 설정
+    url: jdbc:mysql://localhost:3306/Company
+    username: root
+    password: 12345
+    driver-class-name: com.mysql.cj.jdbc.Driver
