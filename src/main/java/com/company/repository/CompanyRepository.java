@@ -155,7 +155,7 @@ public class CompanyRepository {
             Employee employee = new Employee();
             employee.setId(rs.getLong("id"));
             employee.setName(rs.getString("name"));
-            employee.setSalary(rs.getBigDecimal("salary"));
+            employee.setSalary(rs.getInt("salary"));
             employee.setDepartmentId(rs.getLong("department_id"));
             employee.setManagerId(rs.getLong("manager_id"));
             return employee;
