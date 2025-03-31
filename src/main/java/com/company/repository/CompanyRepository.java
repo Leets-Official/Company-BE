@@ -96,7 +96,7 @@ public class CompanyRepository {
 
     // 2. 부서별 통계: 부서명, 평균 급여(반올림), 직원 수
     public List<DepartmentStats> findDepartmentStatistics() {
-        String sql = "SELECT d.name AS department_name, " +
+        String sql = "SELECT d.name AS department, " +
                 "ROUND(AVG(e.salary), 2) AS average_salary, " +
                 "COUNT(e.id) AS employee_count " +
                 "FROM departments d " +
