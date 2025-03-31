@@ -104,10 +104,11 @@ public class CompanyRepository {
                 "GROUP BY d.id";
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
-            DepartmentStats stats = new DepartmentStats();
-            stats.setDepartmentName(rs.getString("department_name"));
-            stats.setAverageSalary(rs.getBigDecimal("average_salary"));
-            stats.setEmployeeCount(rs.getInt("employee_count"));
+            DepartmentStats stats = new DepartmentStats(
+                    rs.getString("department_name"),
+                    rs.getInt("average_salary"),
+                    rs.getInt("employee_count")
+            );
             return stats;
         });
     }
@@ -119,7 +120,7 @@ public class CompanyRepository {
             Employee employee = new Employee();
             employee.setId(rs.getLong("id"));
             employee.setName(rs.getString("name"));
-            employee.setSalary(rs.getBigDecimal("salary"));
+            employee.setSalary(rs.getInt("salary"));
             employee.setDepartmentId(rs.getLong("department_id"));
             employee.setManagerId(rs.getLong("manager_id"));
             return employee;
@@ -137,10 +138,11 @@ public class CompanyRepository {
                 "GROUP BY p.id";
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
-            ProjectStats stats = new ProjectStats();
-            stats.setProjectName(rs.getString("project_name"));
-            stats.setEmployeeCount(rs.getInt("employee_count"));
-            stats.setTotalSalary(rs.getBigDecimal("total_salary"));
+            ProjectStats stats = new ProjectStats(
+                    rs.getString("project_name"),
+                    rs.getInt("employee_count"),
+                    rs.getInt("total_salary")
+            );
             return stats;
         });
     }
