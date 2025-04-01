@@ -20,51 +20,49 @@ public class CompanyRepository {
 
     // --- 테이블 생성 (존재하면 DROP) ---
     public void initializeDatabase() {
-        String dropDepartmentsTable = "DROP TABLE IF EXISTS departments";
-        String dropEmployeesTable = "DROP TABLE IF EXISTS employees";
-        String dropProjectsTable = "DROP TABLE IF EXISTS projects";
-        String dropEmployeeProjectsTable = "DROP TABLE IF EXISTS employee_projects";
+        // Disable foreign key checks
+        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0");
 
-        String createDepartmentsTable = "CREATE TABLE departments (" +
+        // Drop tables if they exist
+        jdbcTemplate.execute("DROP TABLE IF EXISTS employee_projects");
+        jdbcTemplate.execute("DROP TABLE IF EXISTS employees");
+        jdbcTemplate.execute("DROP TABLE IF EXISTS projects");
+        jdbcTemplate.execute("DROP TABLE IF EXISTS departments");
+
+        // Enable foreign key checks
+        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1");
+
+        // Create tables
+        jdbcTemplate.execute("CREATE TABLE departments (" +
                 "id BIGINT AUTO_INCREMENT PRIMARY KEY," +
-                "name VARCHAR(255) NOT NULL" +
-                ")";
+                "name VARCHAR(255) NOT NULL)");
 
-        String createEmployeesTable = "CREATE TABLE employees (" +
+        jdbcTemplate.execute("CREATE TABLE employees (" +
                 "id BIGINT AUTO_INCREMENT PRIMARY KEY," +
                 "name VARCHAR(255) NOT NULL," +
                 "department_id BIGINT," +
                 "salary DECIMAL(10, 2)," +
                 "manager_id BIGINT," +
                 "FOREIGN KEY (department_id) REFERENCES departments(id)," +
-                "FOREIGN KEY (manager_id) REFERENCES employees(id)" +
-                ")";
+                "FOREIGN KEY (manager_id) REFERENCES employees(id))");
 
-        String createProjectsTable = "CREATE TABLE projects (" +
+        jdbcTemplate.execute("CREATE TABLE projects (" +
                 "id BIGINT AUTO_INCREMENT PRIMARY KEY," +
                 "name VARCHAR(255) NOT NULL," +
-                "budget DECIMAL(10, 2)" +
-                ")";
+                "budget DECIMAL(10, 2))");
 
-        String createEmployeeProjectsTable = "CREATE TABLE employee_projects (" +
+        jdbcTemplate.execute("CREATE TABLE employee_projects (" +
                 "employee_id BIGINT," +
                 "project_id BIGINT," +
                 "role VARCHAR(255)," +
                 "PRIMARY KEY (employee_id, project_id)," +
                 "FOREIGN KEY (employee_id) REFERENCES employees(id)," +
-                "FOREIGN KEY (project_id) REFERENCES projects(id)" +
-                ")";
+                "FOREIGN KEY (project_id) REFERENCES projects(id))");
 
-
-        jdbcTemplate.execute(dropDepartmentsTable);
-        jdbcTemplate.execute(dropEmployeesTable);
-        jdbcTemplate.execute(dropProjectsTable);
-        jdbcTemplate.execute(dropEmployeeProjectsTable);
-
-        jdbcTemplate.execute(createDepartmentsTable);
-        jdbcTemplate.execute(createEmployeesTable);
-        jdbcTemplate.execute(createProjectsTable);
-        jdbcTemplate.execute(createEmployeeProjectsTable);
+        // Reset AUTO_INCREMENT values
+        jdbcTemplate.execute("ALTER TABLE employees AUTO_INCREMENT = 1");
+        jdbcTemplate.execute("ALTER TABLE departments AUTO_INCREMENT = 1");
+        jdbcTemplate.execute("ALTER TABLE projects AUTO_INCREMENT = 1");
     }
 
     // --- 데이터 삽입 ---
@@ -96,12 +94,12 @@ public class CompanyRepository {
 
     // 2. 부서별 통계: 부서명, 평균 급여(반올림), 직원 수
     public List<DepartmentStats> findDepartmentStatistics() {
-        String sql = "SELECT d.name AS department, " +
+        String sql = "SELECT d.name AS department_name, " +
                 "ROUND(AVG(e.salary), 2) AS average_salary, " +
                 "COUNT(e.id) AS employee_count " +
                 "FROM departments d " +
                 "JOIN employees e ON d.id = e.department_id " +
-                "GROUP BY d.id";
+                "GROUP BY d.id ORDER BY d.name";
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             DepartmentStats stats = new DepartmentStats(
@@ -175,7 +173,7 @@ public class CompanyRepository {
         String sql = "SELECT e.name AS manager_name, COUNT(m.id) AS subordinate_count " +
                 "FROM employees e " +
                 "JOIN employees m ON e.id = m.manager_id " +
-                "GROUP BY e.id";
+                "GROUP BY e.id ORDER BY subordinate_count DESC";
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             return new ManagerStats(
@@ -183,5 +181,29 @@ public class CompanyRepository {
                     rs.getInt("subordinate_count")
             );
         });
+    }
+
+    public void initializeSampleDataForTest() {
+        // Insert departments
+        jdbcTemplate.update("INSERT INTO departments (name) VALUES ('HR'), ('Engineering'), ('Sales')");
+
+        Long hrId = jdbcTemplate.queryForObject("SELECT id FROM departments WHERE name = 'HR'", Long.class);
+        Long engId = jdbcTemplate.queryForObject("SELECT id FROM departments WHERE name = 'Engineering'", Long.class);
+        Long salesId = jdbcTemplate.queryForObject("SELECT id FROM departments WHERE name = 'Sales'", Long.class);
+
+        // Insert Alice (manager)
+        jdbcTemplate.update("INSERT INTO employees (name, department_id, salary) VALUES (?, ?, ?)", "Alice", hrId, 5000);
+        Long aliceId = jdbcTemplate.queryForObject("SELECT id FROM employees WHERE name = 'Alice'", Long.class);
+
+        // Insert Bob (manager)
+        jdbcTemplate.update("INSERT INTO employees (name, department_id, salary) VALUES (?, ?, ?)", "Bob", engId, 7000);
+        Long bobId = jdbcTemplate.queryForObject("SELECT id FROM employees WHERE name = 'Bob'", Long.class);
+
+        // Insert subordinates
+        jdbcTemplate.update("INSERT INTO employees (name, department_id, salary, manager_id) VALUES (?, ?, ?, ?)", "Charlie", engId, 6000, bobId);
+        jdbcTemplate.update("INSERT INTO employees (name, department_id, salary, manager_id) VALUES (?, ?, ?, ?)", "David", hrId, 5500, aliceId);
+        jdbcTemplate.update("INSERT INTO employees (name, department_id, salary) VALUES (?, ?, ?)", "Eve", salesId, 4500);
+        jdbcTemplate.update("INSERT INTO employees (name, department_id, salary, manager_id) VALUES (?, ?, ?, ?)", "Frank", engId, 6200, bobId);
+        jdbcTemplate.update("INSERT INTO employees (name, department_id, salary) VALUES (?, ?, ?)", "Grace", salesId, 4800);
     }
 }
