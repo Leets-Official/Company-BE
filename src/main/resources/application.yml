@@ -1,5 +1,12 @@
 spring:
   datasource:
-    url: // 환경에 맞게 설정
-    username: // 환경에 맞게 설정
-    password: // 환경에 맞게 설정
+    url: jdbc:mysql://127.0.0.1:3306/company_test
+    username: test_user
+    password: testpass
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    database-platform: org.hibernate.dialect.MySQL8Dialect
